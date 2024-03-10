@@ -1,26 +1,26 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import * as web3 from "@solana/web3.js";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { FC, useState } from "react";
-import styles from "../styles/Home.module.css";
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import * as web3 from '@solana/web3.js';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { FC, useState } from 'react';
+import styles from '../styles/Home.module.css';
 import {
   createMintToInstruction,
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAccount,
-} from "@solana/spl-token";
+} from '@solana/spl-token';
 
 export const MintToForm: FC = () => {
-  const [txSig, setTxSig] = useState("");
-  const [tokenAccount, setTokenAccount] = useState("");
-  const [balance, setBalance] = useState("");
+  const [txSig, setTxSig] = useState('');
+  const [tokenAccount, setTokenAccount] = useState('');
+  const [balance, setBalance] = useState('');
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const link = () => {
     return txSig
       ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
-      : "";
+      : '';
   };
 
   const mintTo = async (event) => {
@@ -48,7 +48,7 @@ export const MintToForm: FC = () => {
 
     const signature = await sendTransaction(transaction, connection);
 
-    await connection.confirmTransaction(signature, "confirmed");
+    await connection.confirmTransaction(signature, 'confirmed');
 
     setTxSig(signature);
     setTokenAccount(associatedToken.toString());

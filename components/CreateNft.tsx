@@ -11,6 +11,7 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
   sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import {
@@ -19,7 +20,10 @@ import {
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { getNft } from './getNft';
+import { getNft, sendNft } from './getNft';
+import { createDestAccount } from './getNft';
+
+createDestAccount;
 
 const CreateNft = ({ imageSrc }) => {
   const { connection } = useConnection();
@@ -27,7 +31,9 @@ const CreateNft = ({ imageSrc }) => {
   // const { publicKey, sendTransaction } = useWallet();
 
   // Hardcoded destination address for the example
-  const destinationAddress = '3hzUtAJQMZXXKf8VegaGBt3SHoVmRD3qPwnYS9Ys6qvk';
+  const destinationAddress = new PublicKey(
+    '3hzUtAJQMZXXKf8VegaGBt3SHoVmRD3qPwnYS9Ys6qvk'
+  );
 
   const METAPLEX = Metaplex.make(connection)
     .use(walletAdapterIdentity(wallet))
@@ -139,9 +145,39 @@ const CreateNft = ({ imageSrc }) => {
   //   }
   //   getNft(connection, wallet);
   // };
+  const sendHandleNFT = async () => {
+    const nftMint = await getNft(connection, wallet);
+    const ix1 = await createDestAccount(nftMint, destinationAddress, wallet);
+    const destinationTokenAddress = await getAssociatedTokenAddress(
+      nftMint,
+      destinationAddress
+    );
+    const ix2 = await sendNft(
+      nftMint,
+      wallet,
+      destinationTokenAddress,
+      wallet.publicKey
+    );
+
+    const tx = new Transaction();
+    tx.add(ix1).add(ix2).feePayer = wallet.publicKey;
+
+    try {
+      const signature = await wallet.sendTransaction(tx, connection);
+      await connection.confirmTransaction(signature, 'processed');
+      console.log(`Transfer başarılı: ${signature}`);
+    } catch (error) {
+      console.error('Transfer sırasında hata oluştu:', error);
+    }
+    // mintPublicKey,
+    // wallet: WalletContextState,
+    // destinationTokenAddress,
+    // payerPublicKey
+  };
   return (
     <div>
       <button onClick={createNft}>Create and Send NFT</button>
+      <button onClick={sendHandleNFT}>Send NFT</button>
     </div>
   );
 };

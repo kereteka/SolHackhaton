@@ -1,6 +1,13 @@
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey, associatedTokenProgram } from '@metaplex-foundation/js';
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import { Connection } from '@solana/web3.js';
+import { Connection, SystemProgram } from '@solana/web3.js';
 
 export const getNft = async (
   connection: Connection,
@@ -37,7 +44,7 @@ export const getNft = async (
   });
 
   for (let i = 0; i < accounts.length; i++) {
-    const parsedAccountInfo: any = accounts[i].account.data;
+    const parsedAccountInfo: any = accounts[0].account.data;
     const mintAddress: string = parsedAccountInfo['parsed']['info']['mint'];
     const tokenBalance: number =
       parsedAccountInfo['parsed']['info']['tokenAmount']['uiAmount'];
@@ -45,4 +52,58 @@ export const getNft = async (
     console.log(`--Token Mint: ${mintAddress}`);
     console.log(`--Token Balance: ${tokenBalance}`);
   }
+  const nftAccount = new PublicKey(
+    accounts[0].account.data['parsed']['info']['mint']
+  );
+  //  owner = await connection.getAccountInfo(nftAccount);
+  // console.log(salla.owner.toString());
+  return nftAccount;
 };
+
+export const sendNft = async (
+  mintPublicKey,
+  wallet: WalletContextState,
+  destinationTokenAddress,
+  payerPublicKey
+) => {
+  const sourceTokenAddress = await getAssociatedTokenAddress(
+    mintPublicKey,
+    wallet.publicKey
+  );
+  const transferInstruction = createTransferInstruction(
+    sourceTokenAddress,
+    destinationTokenAddress,
+    wallet.publicKey,
+    1, // NFT'ler için miktar genellikle 1'dir
+    [],
+    TOKEN_PROGRAM_ID
+  );
+  return transferInstruction;
+};
+
+export const createDestAccount = async (
+  mintPublicKey,
+  destinationPublicKey,
+  wallet
+) => {
+  const destinationTokenAddress = await getAssociatedTokenAddress(
+    mintPublicKey,
+    destinationPublicKey
+  );
+
+  const createAccountInstruction = createAssociatedTokenAccountInstruction(
+    wallet.publicKey,
+    destinationTokenAddress,
+    destinationPublicKey,
+    mintPublicKey,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+  return createAccountInstruction;
+};
+
+// * @param mint                     Token mint account
+//  * @param owner                    Owner of the new account
+//  * @param allowOwnerOffCurve       Allow the owner account to be a PDA (Program Derived Address)
+//  * @param programId                SPL Token program account
+//  * @param associatedTokenProgramId SPL Associated Token program account
