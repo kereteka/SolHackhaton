@@ -7,7 +7,7 @@ import { MintToForm } from '../components/MintToForm';
 import { CreateTokenAccountForm } from '../components/CreateTokenAccount';
 import { CreateMintForm } from '../components/CreateMint';
 import Head from 'next/head';
-import CreateNft from '../components/CreateNft';
+import CreateAndSendNft from '../components/CreateAndSendNft';
 import { toMetaplexFile } from '@metaplex-foundation/js';
 
 const Home: NextPage = (imageSrc) => {
@@ -21,7 +21,7 @@ const Home: NextPage = (imageSrc) => {
         <AppBar />
         <div className={styles.AppBody}>
           <BalanceDisplay />
-          <CreateNft imageSrc={imageSrc} />
+          <CreateAndSendNft imageSrc={imageSrc} />
           {/* <CreateMintForm />
           <CreateTokenAccountForm />
           <MintToForm /> */}

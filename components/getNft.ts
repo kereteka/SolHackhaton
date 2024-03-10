@@ -44,7 +44,7 @@ export const getNft = async (
   });
 
   for (let i = 0; i < accounts.length; i++) {
-    const parsedAccountInfo: any = accounts[0].account.data;
+    const parsedAccountInfo: any = accounts[accounts.length - 1].account.data;
     const mintAddress: string = parsedAccountInfo['parsed']['info']['mint'];
     const tokenBalance: number =
       parsedAccountInfo['parsed']['info']['tokenAmount']['uiAmount'];
@@ -101,9 +101,3 @@ export const createDestAccount = async (
   );
   return createAccountInstruction;
 };
-
-// * @param mint                     Token mint account
-//  * @param owner                    Owner of the new account
-//  * @param allowOwnerOffCurve       Allow the owner account to be a PDA (Program Derived Address)
-//  * @param programId                SPL Token program account
-//  * @param associatedTokenProgramId SPL Associated Token program account
